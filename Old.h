@@ -1,0 +1,14 @@
+//
+// Created by William Dower on 2020-03-17.
+//
+
+#ifndef INTELLIGENTSYSTEMSASSIGNMENT1_OLD_H
+#define INTELLIGENTSYSTEMSASSIGNMENT1_OLD_H
+
+
+class Old {
+
+};
+
+
+#endif //INTELLIGENTSYSTEMSASSIGNMENT1_OLD_H
