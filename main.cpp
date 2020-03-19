@@ -74,14 +74,22 @@ std::vector<boardState*> unprunedBFSReturnBoards(short n) {
         }
 
         for (int i=0;i<n;i++) {
-            for (int j=0;j<currentBoard->numQueens;j++) {
+            int validBoard = true;
+            for (int j=0;j<currentBoard->numQueens;j++) { //Scanning through current boards queen positions
                 if (i == currentBoard->board[j]) {
-                    continue;
+                    validBoard = false;
+                    break;
                 }
                 if (abs(j-i) == abs(currentBoard->board[j]-currentBoard->board[i])) {
-                    continue;
+                    validBoard = false;
+                    break;
                 }
             }
+
+            if (!validBoard) {
+                continue;
+            }
+
             newBoard = new boardState(currentBoard, n);
             newBoard->board[newBoard->numQueens] = i;
             newBoard->numQueens++;
@@ -95,7 +103,7 @@ std::vector<boardState*> unprunedBFSReturnBoards(short n) {
 
 }
 
-int unprunedBFSReturnSolutions(short n) {
+int unprunedBFSReturnSolutions(short n, long long & states) {
     int solutions = 0;
 
     boardState *currentBoard;
@@ -108,6 +116,7 @@ int unprunedBFSReturnSolutions(short n) {
     while (!queue.empty()) {
         currentBoard = queue.front();
         queue.pop();
+        states++;
         if (currentBoard->numQueens == n) {
             if (checkGoalState(currentBoard, n)) {
                 solutions++;
@@ -120,15 +129,23 @@ int unprunedBFSReturnSolutions(short n) {
             }
         }
 
-        for (int i=0;i<n;i++) {
-            for (int j=0;j<currentBoard->numQueens;j++) {
+        for (int i=0;i<n;i++) {//Potential options of next queen
+            int validBoard = true;
+            for (int j=0;j<currentBoard->numQueens;j++) { //Scanning through current boards queen positions
                 if (i == currentBoard->board[j]) {
-                    continue;
+                    validBoard = false;
+                    break;
                 }
-                if (abs(j-i) == abs(currentBoard->board[j]-currentBoard->board[i])) {
-                    continue;
+                if (currentBoard->board[j] == i) {
+                    validBoard = false;
+                    break;
                 }
             }
+
+            if (!validBoard) {
+                continue;
+            }
+
             newBoard = new boardState(currentBoard, n);
             newBoard->board[newBoard->numQueens] = i;
             newBoard->numQueens++;
@@ -145,7 +162,7 @@ int unprunedBFSReturnSolutions(short n) {
 int main() {
 
     for (int i=4;i<21;i++) {
-        if (i < 7) {
+        if (i < -1) {
             std::vector<boardState*> goalStates = unprunedBFSReturnBoards(i);
             std::cout << i << std::endl;
             for (auto state : goalStates) {
@@ -157,7 +174,8 @@ int main() {
             std::cout << std::endl;
         }
         else {
-            std::cout << i << " - " << unprunedBFSReturnSolutions(i) << std::endl;
+            long long states = 0;
+            std::cout << i << " - " << unprunedBFSReturnSolutions(i, states) << " States: " << states << std::endl;
         }
     }
 
