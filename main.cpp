@@ -357,6 +357,50 @@ boardState *hillClimb(const short & n, short allowedSidewaysMoves) {
     return state;
 }
 
+boardState *stochasticHillClimb(const short & n, const long & checkOnFails) {
+
+    boardState *state = generateRandomBoard(n);
+    short boardCost = cost(state, n), prevCost;
+    short *returnArr;
+
+
+    if (cost(state, n) == 0) {
+        //Random chance success?
+        return state;
+    }
+
+    int failCount = 0;
+
+    while (boardCost != 0) {
+        int randomRow, randomCol;
+
+        randomRow = rand() % n;
+        randomCol = rand() % n;
+        int original = state->board[randomRow];
+        state->board[randomRow] = randomCol;
+        int newCost = cost(state, n);
+        if (newCost < boardCost) {
+            boardCost = newCost;
+        }
+        else {
+            state->board[randomRow] = original;
+            failCount++;
+        }
+
+        if (failCount > checkOnFails) {
+            returnArr = findBestMove(state, n, false);
+            if (returnArr[0] == -1) {
+                return nullptr;
+            }
+            else {
+                failCount = 0;
+            }
+        }
+    }
+
+    return state;
+}
+
 void printBoardState(boardState *boardState, const int & n) {
     for (int i=0;i<(n*4)+2;i++) {
         std::cout << "-";
@@ -395,11 +439,13 @@ void printQueenPositions(boardState *boardState, const int & n) {
 
 int main() {
     const short HC_ALLOWED_SIDEWAYS = 0;
+    const long SHC_FAIL_CHECK = 1000;
     short inputNum;
     std::string input;
 
     std::cout << "Which algorithm would you like to use? (Type the letters before : exactly)" << std::endl;
     std::cout << "HC: Hill climb" << std::endl;
+    std::cout << "SHC: Stochastic hill climb" << std::endl;
     std::cin >> input;
 
     if (input == "HC") {
@@ -412,6 +458,35 @@ int main() {
 
         while (singleGoalState == nullptr) {
             singleGoalState = hillClimb(inputNum, HC_ALLOWED_SIDEWAYS);
+        }
+
+        auto endTimer = std::chrono::system_clock::now();
+
+        std::chrono::duration<double> timeTaken = endTimer - startTimer;
+
+        std::cout << "Successful board for N = " << inputNum << " found in " << timeTaken.count() << " seconds." << std::endl;
+
+        if (inputNum > 6) {
+            printQueenPositions(singleGoalState, inputNum);
+        }
+        else {
+
+            printBoardState(singleGoalState, inputNum);
+
+        }
+
+
+    }
+    else if (input == "SHC") {
+        std::cout << "Enter n value" << std::endl;
+        std::cin >> inputNum;
+
+        auto startTimer = std::chrono::system_clock::now();
+
+        boardState *singleGoalState = stochasticHillClimb(inputNum, SHC_FAIL_CHECK);
+
+        while (singleGoalState == nullptr) {
+            singleGoalState = stochasticHillClimb(inputNum, SHC_FAIL_CHECK);
         }
 
         auto endTimer = std::chrono::system_clock::now();
