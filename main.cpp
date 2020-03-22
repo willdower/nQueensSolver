@@ -2,6 +2,7 @@
 #include <queue>
 #include <cmath>
 #include <chrono>
+#include <limits>
 
 class boardState {
 public:
@@ -437,74 +438,204 @@ void printQueenPositions(boardState *boardState, const int & n) {
     std::cout << std::endl;
 }
 
+bool acceptance(const int & newCost, const int & currentCost, const double & temperature) {
+    if (newCost < currentCost) {
+        return true;
+    }
+
+    double chance = exp(((currentCost - newCost)*20)/temperature);
+
+    auto random = static_cast<double>(rand()) / static_cast<double>(RAND_MAX);
+
+    if (chance > random) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+boardState *simulatedAnnealing(short n, double temperature, const double & coolingRate, const int & iterationThreshold) {
+    double originalTemperature = temperature;
+    boardState *state = generateRandomBoard(n);
+    int currentCost = n*n; //Max possible cost
+    int newCost;
+    int iterations = 0;
+
+    const double coolingMult = 1 - coolingRate;
+
+    while (currentCost != 0) {
+        srand(time(nullptr));
+        while (temperature > 2) {
+            iterations++;
+            int randomRow = rand() % n;
+            int randomCol = rand() % n;
+
+            int original = state->board[randomRow];
+            state->board[randomRow] = randomCol;
+
+            newCost = cost(state, n);
+            if (acceptance(newCost, currentCost, temperature)) {
+                currentCost = newCost;
+            }
+            else {
+                state->board[randomRow] = original;
+            }
+            if (iterations > iterationThreshold) {
+                temperature = temperature*coolingMult;
+            }
+        }
+        temperature = 10;
+    }
+    return state;
+}
+
 int main() {
+    srand(time(nullptr));
     const short HC_ALLOWED_SIDEWAYS = 0;
     const long SHC_FAIL_CHECK = 1000;
+    const int SA_TEMPERATURE = 10000;
+    const double SA_COOLING_RATE = 0.0001;
+    const int SA_STATIC_ITERS = 100000;
     short inputNum;
     std::string input;
+    bool successfulInput = false;
 
     std::cout << "Which algorithm would you like to use? (Type the letters before : exactly)" << std::endl;
     std::cout << "HC: Hill climb" << std::endl;
     std::cout << "SHC: Stochastic hill climb" << std::endl;
-    std::cin >> input;
+    std::cout << "SA: Simulated Annealing" << std::endl;
+    std::cout << std::endl << "EX: Exit program." << std::endl;
 
-    if (input == "HC") {
-        std::cout << "Enter n value" << std::endl;
-        std::cin >> inputNum;
+    while (!successfulInput) {
+        std::cin >> input;
+        if (input == "HC") {
+            std::cout << "Enter n value" << std::endl;
+            while (!successfulInput) {
+                std::cin >> inputNum;
+                if (std::cin.fail() || inputNum == 0) {
+                    std::cout << "Invalid input. Please try again." << std::endl;
+                    std::cin.clear();
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                }
+                else {
+                    successfulInput = true;
+                }
+            }
+            std::cout << "Working..." << std::endl;
 
-        auto startTimer = std::chrono::system_clock::now();
+            auto startTimer = std::chrono::system_clock::now();
 
-        boardState *singleGoalState = hillClimb(inputNum, HC_ALLOWED_SIDEWAYS);
+            boardState *singleGoalState = hillClimb(inputNum, HC_ALLOWED_SIDEWAYS);
 
-        while (singleGoalState == nullptr) {
-            singleGoalState = hillClimb(inputNum, HC_ALLOWED_SIDEWAYS);
+            while (singleGoalState == nullptr) {
+                singleGoalState = hillClimb(inputNum, HC_ALLOWED_SIDEWAYS);
+            }
+
+            auto endTimer = std::chrono::system_clock::now();
+
+            std::chrono::duration<double> timeTaken = endTimer - startTimer;
+
+            std::cout << "Successful board for N = " << inputNum << " found in " << timeTaken.count() << " seconds."
+                      << std::endl;
+
+            if (inputNum > 6) {
+                printQueenPositions(singleGoalState, inputNum);
+            } else {
+
+                printBoardState(singleGoalState, inputNum);
+
+            }
+
+
         }
+        else if (input == "SHC") {
+            std::cout << "Enter n value" << std::endl;
+            while (!successfulInput) {
+                std::cin >> inputNum;
+                if (std::cin.fail() || inputNum == 0) {
+                    std::cout << "Invalid input. Please try again." << std::endl;
+                    std::cin.clear();
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                }
+                else {
+                    successfulInput = true;
+                }
+            }
+            std::cout << "Working..." << std::endl;
+            auto startTimer = std::chrono::system_clock::now();
 
-        auto endTimer = std::chrono::system_clock::now();
+            boardState *singleGoalState = stochasticHillClimb(inputNum, SHC_FAIL_CHECK);
 
-        std::chrono::duration<double> timeTaken = endTimer - startTimer;
+            while (singleGoalState == nullptr) {
+                singleGoalState = stochasticHillClimb(inputNum, SHC_FAIL_CHECK);
+            }
 
-        std::cout << "Successful board for N = " << inputNum << " found in " << timeTaken.count() << " seconds." << std::endl;
+            auto endTimer = std::chrono::system_clock::now();
 
-        if (inputNum > 6) {
-            printQueenPositions(singleGoalState, inputNum);
+            std::chrono::duration<double> timeTaken = endTimer - startTimer;
+
+            std::cout << "Successful board for N = " << inputNum << " found in " << timeTaken.count() << " seconds."
+                      << std::endl;
+
+            if (inputNum > 6) {
+                printQueenPositions(singleGoalState, inputNum);
+            } else {
+
+                printBoardState(singleGoalState, inputNum);
+
+            }
+
+
+        }
+        else if (input == "SA") {
+            std::cout << "Enter n value" << std::endl;
+            while (!successfulInput) {
+                std::cin >> inputNum;
+                if (std::cin.fail() || inputNum == 0) {
+                    std::cout << "Invalid input. Please try again." << std::endl;
+                    std::cin.clear();
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                }
+                else {
+                    successfulInput = true;
+                }
+            }
+            std::cout << "Working..." << std::endl;
+            auto startTimer = std::chrono::system_clock::now();
+
+            boardState *singleGoalState = simulatedAnnealing(inputNum, SA_TEMPERATURE, SA_COOLING_RATE, SA_STATIC_ITERS);
+
+            while (singleGoalState == nullptr) {
+                singleGoalState = simulatedAnnealing(inputNum, SA_TEMPERATURE, SA_COOLING_RATE, SA_STATIC_ITERS);
+            }
+
+            auto endTimer = std::chrono::system_clock::now();
+
+            std::chrono::duration<double> timeTaken = endTimer - startTimer;
+
+            std::cout << "Successful board for N = " << inputNum << " found in " << timeTaken.count() << " seconds."
+                      << std::endl;
+
+            if (inputNum > 6) {
+                printQueenPositions(singleGoalState, inputNum);
+            } else {
+
+                printBoardState(singleGoalState, inputNum);
+
+            }
+
+
+        }
+        else if (input == "EX") {
+            return 0;
         }
         else {
-
-            printBoardState(singleGoalState, inputNum);
-
+            std::cout << "Invalid entry." << std::endl;
+            std::cout << input << std::endl;
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         }
-
-
-    }
-    else if (input == "SHC") {
-        std::cout << "Enter n value" << std::endl;
-        std::cin >> inputNum;
-
-        auto startTimer = std::chrono::system_clock::now();
-
-        boardState *singleGoalState = stochasticHillClimb(inputNum, SHC_FAIL_CHECK);
-
-        while (singleGoalState == nullptr) {
-            singleGoalState = stochasticHillClimb(inputNum, SHC_FAIL_CHECK);
-        }
-
-        auto endTimer = std::chrono::system_clock::now();
-
-        std::chrono::duration<double> timeTaken = endTimer - startTimer;
-
-        std::cout << "Successful board for N = " << inputNum << " found in " << timeTaken.count() << " seconds." << std::endl;
-
-        if (inputNum > 6) {
-            printQueenPositions(singleGoalState, inputNum);
-        }
-        else {
-
-            printBoardState(singleGoalState, inputNum);
-
-        }
-
-
     }
 
     /**std::cout << "PRUNED BFS to 20" << std::endl << std::endl;
