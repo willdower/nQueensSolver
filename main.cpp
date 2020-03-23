@@ -9,7 +9,7 @@ public:
     short numQueens;
     short *board;
 
-    boardState(short n) {
+    explicit boardState(short n) {
         numQueens = 0;
         board = new short [n]{};
     }
@@ -502,6 +502,9 @@ int main() {
     bool successfulInput = false;
 
     std::cout << "Which algorithm would you like to use? (Type the letters before : exactly)" << std::endl;
+    std::cout << "BFS: Breadth-first search" << std::endl;
+    std::cout << "PBFS: Pruned breadth-first search" << std::endl;
+    std::cout << std::endl;
     std::cout << "HC: Hill climb" << std::endl;
     std::cout << "SHC: Stochastic hill climb" << std::endl;
     std::cout << "SA: Simulated Annealing" << std::endl;
@@ -627,6 +630,72 @@ int main() {
 
 
         }
+        else if (input == "BFS") {
+            std::cout << "Enter n value" << std::endl;
+            std::cin >> inputNum;
+            if (std::cin.fail() || inputNum == 0) {
+                std::cout << "Invalid input. Please try again." << std::endl;
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            }
+            else {
+                successfulInput = true;
+            }
+            std::cout << "Working..." << std::endl;
+
+            if (inputNum < 7) {
+                auto startBFS = std::chrono::system_clock::now();
+                std::vector<boardState*> goalStates = unprunedBFSReturnBoards(inputNum);
+                auto endBFS = std::chrono::system_clock::now();
+                std::chrono::duration<double> timeTaken = endBFS - startBFS;
+                std::cout << inputNum << " - Solutions: " << goalStates.size() << " - Time Taken: " << timeTaken.count() << std::endl;
+                for (auto state : goalStates) {
+                    printBoardState(state, inputNum);
+                    std::cout << std::endl;
+                }
+            }
+            else {
+                auto startBFS = std::chrono::system_clock::now();
+                int solutions = unprunedBFSReturnSolutions(inputNum);
+                auto endBFS = std::chrono::system_clock::now();
+                std::chrono::duration<double> timeTaken = endBFS - startBFS;
+                std::cout << inputNum << " - " << solutions << " - Time Taken: " << timeTaken.count();
+            }
+            std::cout << std::endl;
+        }
+        else if (input == "PBFS") {
+            std::cout << "Enter n value" << std::endl;
+            std::cin >> inputNum;
+            if (std::cin.fail() || inputNum == 0) {
+                std::cout << "Invalid input. Please try again." << std::endl;
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            }
+            else {
+                successfulInput = true;
+            }
+            std::cout << "Working..." << std::endl;
+
+            if (inputNum < 7) {
+                auto startBFS = std::chrono::system_clock::now();
+                std::vector<boardState*> goalStates = prunedBFSReturnBoards(inputNum);
+                auto endBFS = std::chrono::system_clock::now();
+                std::chrono::duration<double> timeTaken = endBFS - startBFS;
+                std::cout << inputNum << " - Solutions: " << goalStates.size() << " - Time Taken: " << timeTaken.count() << std::endl;
+                for (auto state : goalStates) {
+                    printBoardState(state, inputNum);
+                    std::cout << std::endl;
+                }
+            }
+            else {
+                auto startBFS = std::chrono::system_clock::now();
+                int solutions = prunedBFSReturnSolutions(inputNum);
+                auto endBFS = std::chrono::system_clock::now();
+                std::chrono::duration<double> timeTaken = endBFS - startBFS;
+                std::cout << inputNum << " - " << solutions << " - Time Taken: " << timeTaken.count();
+            }
+            std::cout << std::endl;
+        }
         else if (input == "EX") {
             return 0;
         }
@@ -637,56 +706,4 @@ int main() {
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         }
     }
-
-    /**std::cout << "PRUNED BFS to 20" << std::endl << std::endl;
-
-    for (int i=4;i<21;i++) {
-        if (i < 7) {
-            auto startBFS = std::chrono::system_clock::now();
-            std::vector<boardState*> goalStates = prunedBFSReturnBoards(i);
-            auto endBFS = std::chrono::system_clock::now();
-            std::chrono::duration<double> timeTaken = endBFS - startBFS;
-            std::cout << i << " - Time Taken: " << timeTaken.count() << std::endl;
-            for (auto state : goalStates) {
-                for (int j=0;j<i;j++) {
-                    std::cout << static_cast<char>(j+97) << state->board[j] << " ";
-                }
-                std::cout << std::endl;
-            }
-        }
-        else {
-            auto startBFS = std::chrono::system_clock::now();
-            int solutions = prunedBFSReturnSolutions(i);
-            auto endBFS = std::chrono::system_clock::now();
-            std::chrono::duration<double> timeTaken = endBFS - startBFS;
-            std::cout << i << " - " << solutions << " - Time Taken: " << timeTaken.count();
-        }
-        std::cout << std::endl;
-    }
-
-    std::cout << "UNPRUNED BFS to 20" << std::endl << std::endl;
-
-    for (int i=4;i<21;i++) {
-        if (i < 7) {
-            auto startBFS = std::chrono::system_clock::now();
-            std::vector<boardState*> goalStates = unprunedBFSReturnBoards(i);
-            auto endBFS = std::chrono::system_clock::now();
-            std::chrono::duration<double> timeTaken = endBFS - startBFS;
-            std::cout << i << " - Time Taken: " << timeTaken.count() << std::endl;
-            for (auto state : goalStates) {
-                for (int j=0;j<i;j++) {
-                    std::cout << static_cast<char>(j+97) << state->board[j] << " ";
-                }
-                std::cout << std::endl;
-            }
-        }
-        else {
-            auto startBFS = std::chrono::system_clock::now();
-            int solutions = unprunedBFSReturnSolutions(i);
-            auto endBFS = std::chrono::system_clock::now();
-            std::chrono::duration<double> timeTaken = endBFS - startBFS;
-            std::cout << i << " - " << solutions << " - Time Taken: " << timeTaken.count();
-        }
-        std::cout << std::endl;
-    }**/
 }
