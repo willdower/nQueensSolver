@@ -4,10 +4,12 @@
 #include <chrono>
 #include <limits>
 
+//Shorts used in many places instead of ints to conserve space
+
 class boardState {
 public:
     short numQueens;
-    short *board;
+    short *board; //Array index is row, value at index is column
 
     explicit boardState(short n) {
         numQueens = 0;
@@ -40,8 +42,8 @@ bool checkGoalState(boardState *state, const short & n) {
                 return false;
             }
             //Check diagonal
-            if (abs(j-i) == abs(state->board[j]-state->board[i])) {
-                return false;
+            if (abs(j-i) == abs(state->board[j]-state->board[i])) { //If absolute distance between rows and cols is
+                return false;                                       //equal, two queens are in same diagonal
             }
         }
     }
@@ -61,27 +63,27 @@ std::vector<boardState*> unprunedBFSReturnBoards(short n) {
     queue.push(new boardState(n));
 
     while (!queue.empty()) {
-        currentBoard = queue.front();
+        currentBoard = queue.front(); //Pop state
         queue.pop();
         if (currentBoard->numQueens == n) {
-            if (checkGoalState(currentBoard, n)) {
+            if (checkGoalState(currentBoard, n)) { //Check if goal
                 goalStates.push_back(currentBoard);
                 continue;
             }
             else {
                 delete currentBoard;
-                currentBoard = nullptr;
+                currentBoard = nullptr; //Set to nullptr to avoid double deletion or incorrect access
                 continue;
             }
         }
 
         for (int i=0;i<n;i++) {
-            newBoard = new boardState(currentBoard, n);
+            newBoard = new boardState(currentBoard, n); //Push newly explored nodes to queue
             newBoard->board[newBoard->numQueens] = i;
             newBoard->numQueens++;
             queue.push(newBoard);
         }
-        delete currentBoard;
+        delete currentBoard; //Delete old board to save memory
         currentBoard = nullptr;
     }
 
@@ -89,7 +91,7 @@ std::vector<boardState*> unprunedBFSReturnBoards(short n) {
 
 }
 
-int unprunedBFSReturnSolutions(short n) {
+int unprunedBFSReturnSolutions(short n) { //Same as above, see comments on function above
     int solutions = 0;
 
     boardState *currentBoard;
@@ -158,11 +160,11 @@ std::vector<boardState*> prunedBFSReturnBoards(short n) {
         for (int i=0;i<n;i++) {//Potential options of next queen
             int validBoard = true;
             for (int j=0;j<currentBoard->numQueens;j++) { //Scanning through current boards queen positions
-                if (i == currentBoard->board[j]) {
+                if (i == currentBoard->board[j]) { //Check same column
                     validBoard = false;
                     break;
                 }
-                if (currentBoard->board[j] == i) {
+                if (abs(currentBoard->board[j]-i) == abs((currentBoard->numQueens)-j)) { //Check same diagonal
                     validBoard = false;
                     break;
                 }
@@ -215,11 +217,11 @@ int prunedBFSReturnSolutions(short n) {
         for (int i=0;i<n;i++) {//Potential options of next queen
             int validBoard = true;
             for (int j=0;j<currentBoard->numQueens;j++) { //Scanning through current boards queen positions
-                if (i == currentBoard->board[j]) {
+                if (i == currentBoard->board[j]) { //Check same column
                     validBoard = false;
                     break;
                 }
-                if (currentBoard->board[j] == i) {
+                if (abs(currentBoard->board[j]-i) == abs((currentBoard->numQueens)-j)) { //Check same diagonal
                     validBoard = false;
                     break;
                 }
@@ -254,11 +256,10 @@ short cost(boardState *state, const short & n) {
             if (i == j) {
                 continue;
             }
-            if (state->board[i] == state->board[j]) {
+            if (state->board[i] == state->board[j]) { //Check column conflict
                 conflicts++;
             }
-            //Check diagonal
-            if (abs(j-i) == abs(state->board[j]-state->board[i])) {
+            if (abs(j-i) == abs(state->board[j]-state->board[i])) { //Check diagonal conflict
                 conflicts++;
             }
         }
@@ -273,19 +274,19 @@ short *findBestMove(boardState *state, const short & n, bool canSidewaysMove) {
     for (short i=0;i<n;i++) {
         short original = state->board[i];
         for (short j=0;j<n;j++) {
-            state->board[i] = j;
+            state->board[i] = j; //Set column to new value
             newCost = cost(state, n);
-            if (newCost < lowestCost) {
-                lowestCost = newCost;
+            if (newCost < lowestCost) { //Check if cost of new value better
+                lowestCost = newCost; //If yes, set as best neighbour
                 lowestRow = i;
                 lowestCol = j;
             }
         }
-        state->board[i] = original;
+        state->board[i] = original; //Return to original for further checks
     }
 
-    if (lowestCol == -1 && canSidewaysMove) {
-        while (lowestCol == -1) {
+    if (lowestCol == -1 && canSidewaysMove) { //If none better and can sidewaysmove
+        while (lowestCol == -1) { //Pick a random row and check it for sideways moves, repeat if not found
             lowestRow = rand() % n;
             for (int i = 0; i < n; i++) {
                 state->board[lowestRow] = i;
@@ -324,7 +325,7 @@ boardState *hillClimb(const short & n, short allowedSidewaysMoves) {
     short originalAllowedSidewaysMoves = allowedSidewaysMoves;
 
     if (cost(state, n) == 0) {
-        //Random chance success?
+        //Small chance of successfully randomly generating solution?
         return state;
     }
 
@@ -337,7 +338,7 @@ boardState *hillClimb(const short & n, short allowedSidewaysMoves) {
         }
 
         if (returnArr[0] == -1 && returnArr[1] == -1) {
-            return nullptr;
+            return nullptr; //No solution found
         }
 
         prevCost = boardCost;
@@ -345,13 +346,13 @@ boardState *hillClimb(const short & n, short allowedSidewaysMoves) {
         boardCost = cost(state, n);
 
         if (boardCost == prevCost && allowedSidewaysMoves >= 0) {
-            allowedSidewaysMoves--;
+            allowedSidewaysMoves--; //Sideways move no better, decrease allowed moves
         }
         else if (boardCost < prevCost){
-            allowedSidewaysMoves = originalAllowedSidewaysMoves;
+            allowedSidewaysMoves = originalAllowedSidewaysMoves; //Reset sideways moves
         }
         else if (boardCost == prevCost && allowedSidewaysMoves < 0) {
-            return nullptr;
+            return nullptr; //No solution found
         }
     }
 
@@ -361,12 +362,12 @@ boardState *hillClimb(const short & n, short allowedSidewaysMoves) {
 boardState *stochasticHillClimb(const short & n, const long & checkOnFails) {
 
     boardState *state = generateRandomBoard(n);
-    short boardCost = cost(state, n), prevCost;
+    short boardCost = cost(state, n);
     short *returnArr;
 
 
     if (cost(state, n) == 0) {
-        //Random chance success?
+        //Small chance of successfully randomly generating solution?
         return state;
     }
 
@@ -388,13 +389,13 @@ boardState *stochasticHillClimb(const short & n, const long & checkOnFails) {
             failCount++;
         }
 
-        if (failCount > checkOnFails) {
+        if (failCount > checkOnFails) { //After certain number of fails, check if stuck in unrecoverable state
             returnArr = findBestMove(state, n, false);
             if (returnArr[0] == -1) {
-                return nullptr;
+                return nullptr; //No solution found
             }
             else {
-                failCount = 0;
+                failCount = 0; //Not unrecoverable, just unlucky
             }
         }
     }
@@ -443,7 +444,7 @@ bool acceptance(const int & newCost, const int & currentCost, const double & tem
         return true;
     }
 
-    double chance = exp(((currentCost - newCost)*20)/temperature);
+    double chance = exp(((currentCost - newCost)*20)/temperature); //*20 increases weight of cost difference
 
     auto random = static_cast<double>(rand()) / static_cast<double>(RAND_MAX);
 
@@ -456,7 +457,6 @@ bool acceptance(const int & newCost, const int & currentCost, const double & tem
 }
 
 boardState *simulatedAnnealing(short n, double temperature, const double & coolingRate, const int & iterationThreshold) {
-    double originalTemperature = temperature;
     boardState *state = generateRandomBoard(n);
     int currentCost = n*n; //Max possible cost
     int newCost;
@@ -465,38 +465,40 @@ boardState *simulatedAnnealing(short n, double temperature, const double & cooli
     const double coolingMult = 1 - coolingRate;
 
     while (currentCost != 0) {
-        srand(time(nullptr));
+        srand(time(nullptr)); //Update random seed every loop for better randomness
         while (temperature > 1) {
             iterations++;
             int randomRow = rand() % n;
             int randomCol = rand() % n;
 
             int original = state->board[randomRow];
-            state->board[randomRow] = randomCol;
+            state->board[randomRow] = randomCol; //Change random queen
 
             newCost = cost(state, n);
-            if (acceptance(newCost, currentCost, temperature)) {
+            if (acceptance(newCost, currentCost, temperature)) { //If better, new cost updated
                 currentCost = newCost;
             }
             else {
-                state->board[randomRow] = original;
+                state->board[randomRow] = original; //If worse, revert change
             }
-            if (iterations > iterationThreshold) {
+            if (iterations > iterationThreshold) { //Change temp if static iterations has expired
                 temperature = temperature*coolingMult;
             }
         }
         temperature = 10;
+        //If temperature runs down but doesn't find solution, bump temp back up to beat small bumps on the way to
+        //global optimum
     }
     return state;
 }
 
 int main() {
     srand(time(nullptr));
-    const short HC_ALLOWED_SIDEWAYS = 0;
-    const long SHC_FAIL_CHECK = 1000;
-    const int SA_TEMPERATURE = 100000;
-    const double SA_COOLING_RATE = 0.0001;
-    const int SA_STATIC_ITERS = 10000;
+    const short HC_ALLOWED_SIDEWAYS = 0; //Allowed sideways hillclimb moves
+    const long SHC_FAIL_CHECK = 1000; //Stochastic hillclimb fail check after this many failures
+    const int SA_TEMPERATURE = 100000; //Starting temp for simulated annealing
+    const double SA_COOLING_RATE = 0.0001; //Cooling rate for simulated annealing
+    const int SA_STATIC_ITERS = 10000; //Number of static iterations for simulated annealing
     short inputNum;
     std::string input;
     bool successfulInput = false;
@@ -534,7 +536,7 @@ int main() {
             }
             std::cout << "Working..." << std::endl;
 
-            if (inputNum == 2 || inputNum == 3) {
+            if (inputNum == 2 || inputNum == 3) { //2 and 3 are only N values to have 0 solutions
                 std::cout << inputNum << " has 0 solutions." << std::endl;
                 break;
             }
@@ -586,7 +588,7 @@ int main() {
             std::cout << "Working..." << std::endl;
             for (int i=inputNum;i<=inputNum2;i++) {
 
-                if (i == 2 || i == 3) {
+                if (i == 2 || i == 3) { //2 and 3 are only N values to have 0 solutions
                     std::cout << i << " has 0 solutions." << std::endl;
                     continue;
                 }
@@ -630,7 +632,7 @@ int main() {
             }
             std::cout << "Working..." << std::endl;
 
-            if (inputNum == 2 || inputNum == 3) {
+            if (inputNum == 2 || inputNum == 3) { //2 and 3 are only N values to have 0 solutions
                 std::cout << inputNum << " has 0 solutions." << std::endl;
                 break;
             }
@@ -675,7 +677,7 @@ int main() {
             }
             std::cout << "Working..." << std::endl;
 
-            if (inputNum == 2 || inputNum == 3) {
+            if (inputNum == 2 || inputNum == 3) { //2 and 3 are only N values to have 0 solutions
                 std::cout << inputNum << " has 0 solutions." << std::endl;
                 break;
             }
@@ -728,7 +730,7 @@ int main() {
 
             for (int i=inputNum;i<=inputNum2;i++) {
 
-                if (i == 2 || i == 3) {
+                if (i == 2 || i == 3) { //2 and 3 are only N values to have 0 solutions
                     std::cout << i << " has 0 solutions." << std::endl;
                     continue;
                 }
