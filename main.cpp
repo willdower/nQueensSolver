@@ -466,7 +466,7 @@ boardState *simulatedAnnealing(short n, double temperature, const double & cooli
 
     while (currentCost != 0) {
         srand(time(nullptr));
-        while (temperature > 2) {
+        while (temperature > 1) {
             iterations++;
             int randomRow = rand() % n;
             int randomCol = rand() % n;
@@ -494,20 +494,27 @@ int main() {
     srand(time(nullptr));
     const short HC_ALLOWED_SIDEWAYS = 0;
     const long SHC_FAIL_CHECK = 1000;
-    const int SA_TEMPERATURE = 10000;
+    const int SA_TEMPERATURE = 100000;
     const double SA_COOLING_RATE = 0.0001;
-    const int SA_STATIC_ITERS = 100000;
+    const int SA_STATIC_ITERS = 10000;
     short inputNum;
     std::string input;
     bool successfulInput = false;
 
+    std::cout << std::endl;
     std::cout << "Which algorithm would you like to use? (Type the letters before : exactly)" << std::endl;
+    std::cout << std::endl;
     std::cout << "BFS: Breadth-first search" << std::endl;
     std::cout << "PBFS: Pruned breadth-first search" << std::endl;
     std::cout << std::endl;
+    std::cout << "RBFS: Range breadth-first search (do BFS for all numbers between two values)" << std::endl;
+    std::cout << "RPBFS: Range pruned breadth-first search (do PBFS for all numbers between two values)" << std::endl;
+    std::cout << std::endl;
     std::cout << "HC: Hill climb" << std::endl;
+    std::cout << "RHC: Range hill climb (do HC for all numbers between two values)" << std::endl;
     std::cout << "SHC: Stochastic hill climb" << std::endl;
     std::cout << "SA: Simulated Annealing" << std::endl;
+    std::cout << "RSA: Range simulated annealing (do SA for all numbers between two values)" << std::endl;
     std::cout << std::endl << "EX: Exit program." << std::endl;
 
     while (!successfulInput) {
@@ -526,6 +533,11 @@ int main() {
                 }
             }
             std::cout << "Working..." << std::endl;
+
+            if (inputNum == 2 || inputNum == 3) {
+                std::cout << inputNum << " has 0 solutions." << std::endl;
+                break;
+            }
 
             auto startTimer = std::chrono::system_clock::now();
 
@@ -552,6 +564,57 @@ int main() {
 
 
         }
+        else if (input == "RHC") {
+            std::cout << "Enter lowest n value" << std::endl;
+            std::cin >> inputNum;
+            if (std::cin.fail() || inputNum == 0) {
+                std::cout << "Invalid input. Please try again." << std::endl;
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            }
+            std::cout << "Enter highest n value" << std::endl;
+            int inputNum2;
+            std::cin >> inputNum2;
+            if (std::cin.fail() || inputNum == 0) {
+                std::cout << "Invalid input. Please try again." << std::endl;
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            }
+            else {
+                successfulInput = true;
+            }
+            std::cout << "Working..." << std::endl;
+            for (int i=inputNum;i<=inputNum2;i++) {
+
+                if (i == 2 || i == 3) {
+                    std::cout << i << " has 0 solutions." << std::endl;
+                    continue;
+                }
+
+                auto startTimer = std::chrono::system_clock::now();
+
+                boardState *singleGoalState = hillClimb(i, HC_ALLOWED_SIDEWAYS);
+
+                while (singleGoalState == nullptr) {
+                    singleGoalState = hillClimb(i, HC_ALLOWED_SIDEWAYS);
+                }
+
+                auto endTimer = std::chrono::system_clock::now();
+
+                std::chrono::duration<double> timeTaken = endTimer - startTimer;
+
+                std::cout << "Successful board for N = " << i << " found in " << timeTaken.count() << " seconds."
+                          << std::endl;
+
+                if (i > 6) {
+                    printQueenPositions(singleGoalState, i);
+                } else {
+
+                    printBoardState(singleGoalState, i);
+
+                }
+            }
+        }
         else if (input == "SHC") {
             std::cout << "Enter n value" << std::endl;
             while (!successfulInput) {
@@ -566,6 +629,12 @@ int main() {
                 }
             }
             std::cout << "Working..." << std::endl;
+
+            if (inputNum == 2 || inputNum == 3) {
+                std::cout << inputNum << " has 0 solutions." << std::endl;
+                break;
+            }
+
             auto startTimer = std::chrono::system_clock::now();
 
             boardState *singleGoalState = stochasticHillClimb(inputNum, SHC_FAIL_CHECK);
@@ -605,6 +674,12 @@ int main() {
                 }
             }
             std::cout << "Working..." << std::endl;
+
+            if (inputNum == 2 || inputNum == 3) {
+                std::cout << inputNum << " has 0 solutions." << std::endl;
+                break;
+            }
+
             auto startTimer = std::chrono::system_clock::now();
 
             boardState *singleGoalState = simulatedAnnealing(inputNum, SA_TEMPERATURE, SA_COOLING_RATE, SA_STATIC_ITERS);
@@ -629,6 +704,56 @@ int main() {
             }
 
 
+        }
+        else if (input == "RSA") {
+            std::cout << "Enter lowest n value" << std::endl;
+            std::cin >> inputNum;
+            if (std::cin.fail() || inputNum == 0) {
+                std::cout << "Invalid input. Please try again." << std::endl;
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            }
+            std::cout << "Enter highest n value" << std::endl;
+            int inputNum2;
+            std::cin >> inputNum2;
+            if (std::cin.fail() || inputNum == 0) {
+                std::cout << "Invalid input. Please try again." << std::endl;
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            }
+            else {
+                successfulInput = true;
+            }
+            std::cout << "Working..." << std::endl;
+
+            for (int i=inputNum;i<=inputNum2;i++) {
+
+                if (i == 2 || i == 3) {
+                    std::cout << i << " has 0 solutions." << std::endl;
+                    continue;
+                }
+
+                auto startTimer = std::chrono::system_clock::now();
+
+                boardState *singleGoalState = simulatedAnnealing(i, SA_TEMPERATURE, SA_COOLING_RATE, SA_STATIC_ITERS);
+
+                while (singleGoalState == nullptr) {
+                    singleGoalState = simulatedAnnealing(i, SA_TEMPERATURE, SA_COOLING_RATE, SA_STATIC_ITERS);
+                }
+
+                auto endTimer = std::chrono::system_clock::now();
+
+                std::chrono::duration<double> timeTaken = endTimer - startTimer;
+
+                std::cout << "Successful board for N = " << i << " found in " << timeTaken.count() << " seconds." << std::endl;
+
+                if (i > 6) {
+                    printQueenPositions(singleGoalState, i);
+                } else {
+                    printBoardState(singleGoalState, i);
+
+                }
+            }
         }
         else if (input == "BFS") {
             std::cout << "Enter n value" << std::endl;
@@ -695,6 +820,92 @@ int main() {
                 std::cout << inputNum << " - " << solutions << " - Time Taken: " << timeTaken.count();
             }
             std::cout << std::endl;
+        }
+        else if (input == "RBFS") {
+            std::cout << "Enter lowest n value" << std::endl;
+            std::cin >> inputNum;
+            if (std::cin.fail() || inputNum == 0) {
+                std::cout << "Invalid input. Please try again." << std::endl;
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            }
+            std::cout << "Enter highest n value" << std::endl;
+            int inputNum2;
+            std::cin >> inputNum2;
+            if (std::cin.fail() || inputNum == 0) {
+                std::cout << "Invalid input. Please try again." << std::endl;
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            }
+            else {
+                successfulInput = true;
+            }
+            std::cout << "Working..." << std::endl;
+
+            for (int i=inputNum;i<=inputNum2;i++) {
+                if (i < 7) {
+                    auto startBFS = std::chrono::system_clock::now();
+                    std::vector<boardState*> goalStates = unprunedBFSReturnBoards(i);
+                    auto endBFS = std::chrono::system_clock::now();
+                    std::chrono::duration<double> timeTaken = endBFS - startBFS;
+                    std::cout << i << " - Solutions: " << goalStates.size() << " - Time Taken: " << timeTaken.count() << std::endl;
+                    for (auto state : goalStates) {
+                        printBoardState(state, i);
+                        std::cout << std::endl;
+                    }
+                }
+                else {
+                    auto startBFS = std::chrono::system_clock::now();
+                    int solutions = unprunedBFSReturnSolutions(i);
+                    auto endBFS = std::chrono::system_clock::now();
+                    std::chrono::duration<double> timeTaken = endBFS - startBFS;
+                    std::cout << i << " - " << solutions << " - Time Taken: " << timeTaken.count();
+                }
+                std::cout << std::endl;
+            }
+        }
+        else if (input == "RPBFS") {
+            std::cout << "Enter lowest n value" << std::endl;
+            std::cin >> inputNum;
+            if (std::cin.fail() || inputNum == 0) {
+                std::cout << "Invalid input. Please try again." << std::endl;
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            }
+            std::cout << "Enter highest n value" << std::endl;
+            int inputNum2;
+            std::cin >> inputNum2;
+            if (std::cin.fail() || inputNum == 0) {
+                std::cout << "Invalid input. Please try again." << std::endl;
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            }
+            else {
+                successfulInput = true;
+            }
+            std::cout << "Working..." << std::endl;
+
+            for (int i=inputNum;i<=inputNum2;i++) {
+                if (i < 7) {
+                    auto startBFS = std::chrono::system_clock::now();
+                    std::vector<boardState*> goalStates = prunedBFSReturnBoards(i);
+                    auto endBFS = std::chrono::system_clock::now();
+                    std::chrono::duration<double> timeTaken = endBFS - startBFS;
+                    std::cout << i << " - Solutions: " << goalStates.size() << " - Time Taken: " << timeTaken.count() << std::endl;
+                    for (auto state : goalStates) {
+                        printBoardState(state, i);
+                        std::cout << std::endl;
+                    }
+                }
+                else {
+                    auto startBFS = std::chrono::system_clock::now();
+                    int solutions = prunedBFSReturnSolutions(i);
+                    auto endBFS = std::chrono::system_clock::now();
+                    std::chrono::duration<double> timeTaken = endBFS - startBFS;
+                    std::cout << i << " - " << solutions << " - Time Taken: " << timeTaken.count();
+                }
+                std::cout << std::endl;
+            }
         }
         else if (input == "EX") {
             return 0;
