@@ -500,6 +500,7 @@ int main() {
     const double SA_COOLING_RATE = 0.0001; //Cooling rate for simulated annealing
     const int SA_STATIC_ITERS = 10000; //Number of static iterations for simulated annealing
     short inputNum;
+    int inputNum2;
     std::string input;
     bool successfulInput = false;
 
@@ -568,23 +569,33 @@ int main() {
         }
         else if (input == "RHC") {
             std::cout << "Enter lowest n value" << std::endl;
-            std::cin >> inputNum;
-            if (std::cin.fail() || inputNum == 0) {
-                std::cout << "Invalid input. Please try again." << std::endl;
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            while (1) {
+                std::cin >> inputNum;
+                if (std::cin.fail() || inputNum == 0) {
+                    std::cout << "Invalid input. Please try again." << std::endl;
+                    std::cin.clear();
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                }
+                else {
+                    break;
+                }
             }
-            std::cout << "Enter highest n value" << std::endl;
-            int inputNum2;
-            std::cin >> inputNum2;
-            if (std::cin.fail() || inputNum == 0) {
-                std::cout << "Invalid input. Please try again." << std::endl;
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+            while (1) {
+                std::cout << "Enter highest n value" << std::endl;
+
+                std::cin >> inputNum2;
+                if (std::cin.fail() || inputNum == 0) {
+                    std::cout << "Invalid input. Please try again." << std::endl;
+                    std::cin.clear();
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                }
+                else {
+                    successfulInput = true;
+                    break;
+                }
             }
-            else {
-                successfulInput = true;
-            }
+
             std::cout << "Working..." << std::endl;
             for (int i=inputNum;i<=inputNum2;i++) {
 
@@ -709,22 +720,31 @@ int main() {
         }
         else if (input == "RSA") {
             std::cout << "Enter lowest n value" << std::endl;
-            std::cin >> inputNum;
-            if (std::cin.fail() || inputNum == 0) {
-                std::cout << "Invalid input. Please try again." << std::endl;
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            while (1) {
+                std::cin >> inputNum;
+                if (std::cin.fail() || inputNum == 0) {
+                    std::cout << "Invalid input. Please try again." << std::endl;
+                    std::cin.clear();
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                }
+                else {
+                    break;
+                }
             }
-            std::cout << "Enter highest n value" << std::endl;
-            int inputNum2;
-            std::cin >> inputNum2;
-            if (std::cin.fail() || inputNum == 0) {
-                std::cout << "Invalid input. Please try again." << std::endl;
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            }
-            else {
-                successfulInput = true;
+
+            while (1) {
+                std::cout << "Enter highest n value" << std::endl;
+
+                std::cin >> inputNum2;
+                if (std::cin.fail() || inputNum == 0) {
+                    std::cout << "Invalid input. Please try again." << std::endl;
+                    std::cin.clear();
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                }
+                else {
+                    successfulInput = true;
+                    break;
+                }
             }
             std::cout << "Working..." << std::endl;
 
@@ -825,22 +845,31 @@ int main() {
         }
         else if (input == "RBFS") {
             std::cout << "Enter lowest n value" << std::endl;
-            std::cin >> inputNum;
-            if (std::cin.fail() || inputNum == 0) {
-                std::cout << "Invalid input. Please try again." << std::endl;
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            while (1) {
+                std::cin >> inputNum;
+                if (std::cin.fail() || inputNum == 0) {
+                    std::cout << "Invalid input. Please try again." << std::endl;
+                    std::cin.clear();
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                }
+                else {
+                    break;
+                }
             }
-            std::cout << "Enter highest n value" << std::endl;
-            int inputNum2;
-            std::cin >> inputNum2;
-            if (std::cin.fail() || inputNum == 0) {
-                std::cout << "Invalid input. Please try again." << std::endl;
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            }
-            else {
-                successfulInput = true;
+
+            while (1) {
+                std::cout << "Enter highest n value" << std::endl;
+
+                std::cin >> inputNum2;
+                if (std::cin.fail() || inputNum == 0) {
+                    std::cout << "Invalid input. Please try again." << std::endl;
+                    std::cin.clear();
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                }
+                else {
+                    successfulInput = true;
+                    break;
+                }
             }
             std::cout << "Working..." << std::endl;
 
@@ -868,22 +897,31 @@ int main() {
         }
         else if (input == "RPBFS") {
             std::cout << "Enter lowest n value" << std::endl;
-            std::cin >> inputNum;
-            if (std::cin.fail() || inputNum == 0) {
-                std::cout << "Invalid input. Please try again." << std::endl;
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            while (1) {
+                std::cin >> inputNum;
+                if (std::cin.fail() || inputNum == 0) {
+                    std::cout << "Invalid input. Please try again." << std::endl;
+                    std::cin.clear();
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                }
+                else {
+                    break;
+                }
             }
-            std::cout << "Enter highest n value" << std::endl;
-            int inputNum2;
-            std::cin >> inputNum2;
-            if (std::cin.fail() || inputNum == 0) {
-                std::cout << "Invalid input. Please try again." << std::endl;
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            }
-            else {
-                successfulInput = true;
+
+            while (1) {
+                std::cout << "Enter highest n value" << std::endl;
+
+                std::cin >> inputNum2;
+                if (std::cin.fail() || inputNum == 0) {
+                    std::cout << "Invalid input. Please try again." << std::endl;
+                    std::cin.clear();
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                }
+                else {
+                    successfulInput = true;
+                    break;
+                }
             }
             std::cout << "Working..." << std::endl;
 
